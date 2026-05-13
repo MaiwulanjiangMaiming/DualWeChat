@@ -40,7 +40,7 @@ if [ -d "$TARGET_APP" ]; then
     sudo rm -rf "$TARGET_APP"
 fi
 
-info "正在复制 WeChat.app → WeChat2.app ..."
+info "正在复制 WeChat.app → DualWeChat.app ..."
 sudo cp -R "$SOURCE_APP" "$TARGET_APP"
 ok "复制完成"
 
