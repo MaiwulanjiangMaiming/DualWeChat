@@ -57,6 +57,15 @@ sudo /usr/libexec/PlistBuddy \
 sudo /usr/libexec/PlistBuddy \
     -c "Set :CFBundleName $APP_NAME" \
     "$TARGET_APP/Contents/Info.plist"
+
+for strings_file in "$TARGET_APP"/Contents/Resources/*.lproj/InfoPlist.strings; do
+    if [ -f "$strings_file" ]; then
+        sudo /usr/libexec/PlistBuddy \
+            -c "Set :CFBundleDisplayName $APP_NAME" "$strings_file" 2>/dev/null || true
+        sudo /usr/libexec/PlistBuddy \
+            -c "Set :CFBundleName $APP_NAME" "$strings_file" 2>/dev/null || true
+    fi
+done
 ok "应用名称 → $APP_NAME"
 
 info "正在修改 URL Scheme Bundle ID ..."
