@@ -1,5 +1,3 @@
 .DS_Store
 *.pyc
 __pycache__/
-icon_work/
-tmp/

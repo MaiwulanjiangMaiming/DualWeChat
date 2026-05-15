@@ -19,7 +19,7 @@
 |---|---|
 | 🚀 **一键安装 / One-click install** | 运行一个脚本，自动完成所有配置 / Single script handles everything |
 | 🔑 **真正独立 / Truly independent** | 不同 Bundle ID，两个微信互不干扰 / Different Bundle IDs, no interference |
-| 🎨 **金属图标 / Metallic icon** | 自动生成金属质感黑色图标，一眼区分 / Auto-generated dark metallic icon |
+| 🎨 **5种配色 / 5 color schemes** | Metal/Aurora/Neon/Lava/Matrix 可选 / Choose from 5 icon themes |
 | 🧹 **无残留 / No residue** | 不需要保持终端窗口打开 / No terminal window needed |
 | ⚙️ **可自定义 / Customizable** | 图标、名称均可自由修改 / Freely modify icon and name |
 
@@ -38,7 +38,7 @@ macOS uses `CFBundleIdentifier` to identify apps. Newer WeChat versions detect e
 | 1. 复制 `WeChat.app` → `DualWeChat.app` | 创建独立的应用副本 / Create an independent app copy |
 | 2. 修改 `CFBundleIdentifier` | `com.tencent.xinWeChat` → `com.tencent.xinWeChat.dual` |
 | 3. 修改应用名称 / Rename | `WeChat` → `DualWeChat` |
-| 4. 替换图标 / Replace icon | 生成金属黑质感图标（可选）/ Generate metallic dark icon (optional) |
+| 4. 替换图标 / Replace icon | 生成自定义配色图标（5种可选）/ Generate custom icon (5 themes) |
 | 5. 重新签名 / Re-sign | `codesign --force --deep --sign -` |
 
 完成后两个应用在系统层面完全独立，可以同时登录不同账号。
@@ -106,15 +106,27 @@ touch /Applications/DualWeChat.app && killall Dock
 
 ### 自定义图标 / Custom Icon
 
+安装时会提示选择图标配色，支持 5 种主题：
+
+| 编号 | 名称 | 风格 |
+|-----|------|------|
+| 1 | Metal / 金属 | 金属黑质感 |
+| 2 | Aurora / 极光 | 冷蓝极光感 |
+| 3 | Neon / 霓虹 | 紫粉霓虹感 |
+| 4 | Lava / 熔岩 | 橙金烈焰感 |
+| 5 | Matrix / 矩阵 | 黑客终端感 |
+
+也可以手动指定配色：
+
 ```bash
 pip3 install Pillow numpy
-python3 generate_icon.py /Applications/DualWeChat.app/Contents/Resources/AppIcon.icns
+python3 generate_icon.py /Applications/DualWeChat.app/Contents/Resources/AppIcon.icns aurora
 sudo codesign --force --deep --sign - /Applications/DualWeChat.app
 ```
 
-脚本从原版微信图标生成金属质感黑色版本。你也可以手动替换任何 `.icns` 图标文件。
+Available schemes: `metal`, `aurora`, `neon`, `lava`, `matrix`
 
-The script generates a metallic dark version from the original WeChat icon. You can also manually replace with any `.icns` file.
+你也可以手动替换任何 `.icns` 图标文件 / You can also manually replace with any `.icns` file.
 
 ## 📱 使用 / Usage
 
