@@ -88,8 +88,8 @@ sudo codesign --force --deep --sign - "$TARGET_APP" 2>/dev/null
 ok "签名完成"
 
 info "正在刷新 Dock 缓存 ..."
-touch "$TARGET_APP"
-killall Dock 2>/dev/null || true
+sudo touch "$TARGET_APP"
+sudo killall Dock 2>/dev/null || true
 
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
