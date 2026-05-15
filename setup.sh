@@ -74,15 +74,42 @@ sudo /usr/libexec/PlistBuddy \
     "$TARGET_APP/Contents/Info.plist" 2>/dev/null || true
 ok "URL Scheme 已更新"
 
+ICON_SCHEME="metal"
+
 if command -v python3 &>/dev/null; then
     if python3 -c "from PIL import Image; import numpy" 2>/dev/null; then
-        info "正在生成金属质感图标 ..."
-        sudo chmod 666 "$TARGET_APP/Contents/Resources/AppIcon.icns"
-        sudo python3 "$SCRIPT_DIR/generate_icon.py" "$TARGET_APP/Contents/Resources/AppIcon.icns"
-        if [ $? -eq 0 ]; then
-            ok "金属图标已应用"
+        echo -e "${CYAN}[选择图标配色 / Choose icon color scheme]${NC}"
+        echo ""
+        echo "  1) Metal   / 金属     — 金属黑质感"
+        echo "  2) Aurora  / 极光     — 冷蓝极光感"
+        echo "  3) Neon    / 霓虹     — 紫粉霓虹感"
+        echo "  4) Lava    / 熔岩     — 橙金烈焰感"
+        echo "  5) Matrix  / 矩阵     — 黑客终端感"
+        echo "  0) 跳过 / Skip"
+        echo ""
+        read -p "请选择 [1-5, 默认 1]: " -r SCHEME_CHOICE
+        echo
+
+        case "$SCHEME_CHOICE" in
+            2) ICON_SCHEME="aurora" ;;
+            3) ICON_SCHEME="neon" ;;
+            4) ICON_SCHEME="lava" ;;
+            5) ICON_SCHEME="matrix" ;;
+            0) ICON_SCHEME="skip" ;;
+            *) ICON_SCHEME="metal" ;;
+        esac
+
+        if [ "$ICON_SCHEME" != "skip" ]; then
+            info "正在生成 ${ICON_SCHEME} 图标 ..."
+            sudo chmod 666 "$TARGET_APP/Contents/Resources/AppIcon.icns"
+            sudo python3 "$SCRIPT_DIR/generate_icon.py" "$TARGET_APP/Contents/Resources/AppIcon.icns" "$ICON_SCHEME"
+            if [ $? -eq 0 ]; then
+                ok "${ICON_SCHEME} 图标已应用"
+            else
+                warn "图标生成失败，将使用原版图标"
+            fi
         else
-            warn "图标生成失败，将使用原版图标"
+            info "跳过自定义图标"
         fi
     else
         warn "未检测到 Pillow / numpy，跳过自定义图标"

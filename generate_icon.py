@@ -2,12 +2,63 @@ import sys
 import os
 import tempfile
 import shutil
-from pathlib import Path
 
 from PIL import Image
 import numpy as np
 
-def create_metallic_icon(src_icns_path, dst_icns_path):
+SCHEMES = {
+    "metal": {
+        "name": "Metal / 金属",
+        "base":  (6, 6, 8),
+        "mid":   (22, 22, 26),
+        "primary": (50, 50, 55),
+        "accent": (205, 205, 210),
+        "shimmer_amp": 15,
+        "shimmer_offset": 4,
+    },
+    "aurora": {
+        "name": "Aurora / 极光",
+        "base":  (10, 14, 26),
+        "mid":   (13, 33, 55),
+        "primary": (0, 229, 255),
+        "accent": (123, 143, 255),
+        "shimmer_amp": 20,
+        "shimmer_offset": 0,
+    },
+    "neon": {
+        "name": "Neon / 霓虹",
+        "base":  (18, 0, 21),
+        "mid":   (30, 0, 48),
+        "primary": (191, 0, 255),
+        "accent": (255, 45, 120),
+        "shimmer_amp": 20,
+        "shimmer_offset": 0,
+    },
+    "lava": {
+        "name": "Lava / 熔岩",
+        "base":  (12, 8, 0),
+        "mid":   (26, 16, 0),
+        "primary": (255, 106, 0),
+        "accent": (255, 210, 0),
+        "shimmer_amp": 20,
+        "shimmer_offset": 0,
+    },
+    "matrix": {
+        "name": "Matrix / 矩阵",
+        "base":  (0, 13, 7),
+        "mid":   (0, 26, 15),
+        "primary": (0, 255, 136),
+        "accent": (0, 184, 76),
+        "shimmer_amp": 20,
+        "shimmer_offset": 0,
+    },
+}
+
+SCHEME_LIST = ["metal", "aurora", "neon", "lava", "matrix"]
+
+
+def generate_icon(src_icns_path, dst_icns_path, scheme_key="metal"):
+    scheme = SCHEMES[scheme_key]
     tmp_dir = tempfile.mkdtemp(prefix="dualwechat_")
     try:
         tmp_png = os.path.join(tmp_dir, "icon_1024.png")
@@ -23,41 +74,43 @@ def create_metallic_icon(src_icns_path, dst_icns_path):
         H, W = gray_norm.shape
         y_coords = np.arange(H).reshape(-1, 1).astype(np.float32) / H
 
-        out_r = np.zeros((H, W), dtype=np.float32)
-        out_g = np.zeros((H, W), dtype=np.float32)
-        out_b = np.zeros((H, W), dtype=np.float32)
+        base_c = np.array(scheme["base"], dtype=np.float32)
+        mid_c = np.array(scheme["mid"], dtype=np.float32)
+        primary_c = np.array(scheme["primary"], dtype=np.float32)
+        accent_c = np.array(scheme["accent"], dtype=np.float32)
 
         hi = gray_norm > 0.7
-        mid = (gray_norm > 0.4) & (~hi)
-        lo = ~hi & ~mid
+        md = (gray_norm > 0.4) & (~hi)
+        lo = ~hi & ~md
 
         ht = np.clip((gray_norm - 0.7) / 0.3, 0, 1)
-        out_r[hi] = 50 + 155 * ht[hi]
-        out_g[hi] = 50 + 155 * ht[hi]
-        out_b[hi] = 55 + 155 * ht[hi]
-
         mt = np.clip((gray_norm - 0.4) / 0.3, 0, 1)
-        out_r[mid] = 22 + 28 * mt[mid]
-        out_g[mid] = 22 + 28 * mt[mid]
-        out_b[mid] = 26 + 29 * mt[mid]
-
         lt = np.clip(gray_norm / 0.4, 0, 1)
-        out_r[lo] = 6 + 16 * lt[lo]
-        out_g[lo] = 6 + 16 * lt[lo]
-        out_b[lo] = 8 + 18 * lt[lo]
 
-        shimmer = np.sin(y_coords * np.pi * 2.5) * 15
-        out_r += shimmer
-        out_g += shimmer
-        out_b += shimmer + 4
+        out = np.zeros((H, W, 4), dtype=np.float32)
 
-        out_arr = np.zeros((H, W, 4), dtype=np.uint8)
-        out_arr[:,:,0] = np.clip(out_r, 0, 255).astype(np.uint8)
-        out_arr[:,:,1] = np.clip(out_g, 0, 255).astype(np.uint8)
-        out_arr[:,:,2] = np.clip(out_b, 0, 255).astype(np.uint8)
-        out_arr[:,:,3] = a.astype(np.uint8)
+        for c in range(3):
+            out[:,:,c] = np.where(hi,
+                mid_c[c] + (primary_c[c] - mid_c[c]) * ht + (accent_c[c] - primary_c[c]) * ht * 0.3,
+                out[:,:,c])
 
-        result = Image.fromarray(out_arr, "RGBA")
+            out[:,:,c] = np.where(md,
+                base_c[c] + (mid_c[c] - base_c[c]) * mt,
+                out[:,:,c])
+
+            out[:,:,c] = np.where(lo,
+                base_c[c] * 0.5 + base_c[c] * 0.5 * lt,
+                out[:,:,c])
+
+        shimmer = np.sin(y_coords * np.pi * 2.5) * scheme["shimmer_amp"]
+        glow = np.sin(y_coords * np.pi * 1.2 + 0.5) * 10
+        for c in range(3):
+            accent_shift = (accent_c[c] - primary_c[c]) * 0.08
+            out[:,:,c] += shimmer * (primary_c[c] / 255.0) + glow * (accent_c[c] / 255.0) + accent_shift * ht
+
+        out[:,:,3] = a
+        out_int = np.clip(out, 0, 255).astype(np.uint8)
+        result = Image.fromarray(out_int, "RGBA")
 
         iconset_dir = os.path.join(tmp_dir, "AppIcon.iconset")
         os.makedirs(iconset_dir, exist_ok=True)
@@ -84,7 +137,7 @@ def create_metallic_icon(src_icns_path, dst_icns_path):
 
         if os.path.exists(tmp_icns):
             shutil.copy2(tmp_icns, dst_icns_path)
-            print(f"✅ Metallic icon applied to {dst_icns_path}")
+            print(f"✅ [{scheme['name']}] icon applied to {dst_icns_path}")
             return True
         else:
             print("❌ Failed to create icns file")
@@ -95,10 +148,10 @@ def create_metallic_icon(src_icns_path, dst_icns_path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <target.icns>")
-        print(f"  Reads from original WeChat.icns, generates metallic version,")
-        print(f"  and writes to <target.icns>")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print(f"Usage: {sys.argv[0]} <target.icns> [scheme]")
+        print(f"  Schemes: {', '.join(SCHEME_LIST)}")
+        print(f"  Default: metal")
         sys.exit(1)
 
     src = "/Applications/WeChat.app/Contents/Resources/AppIcon.icns"
@@ -107,5 +160,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     dst = sys.argv[1]
-    success = create_metallic_icon(src, dst)
+    scheme = sys.argv[2] if len(sys.argv) == 3 else "metal"
+
+    if scheme not in SCHEMES:
+        print(f"❌ Unknown scheme: {scheme}")
+        print(f"   Available: {', '.join(SCHEME_LIST)}")
+        sys.exit(1)
+
+    success = generate_icon(src, dst, scheme)
     sys.exit(0 if success else 1)
