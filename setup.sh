@@ -3,7 +3,7 @@ set -e
 
 APP_NAME="DualWeChat"
 SOURCE_APP="/Applications/WeChat.app"
-TARGET_APP="/Applications/WeChat2.app"
+TARGET_APP="/Applications/DualWeChat.app"
 BUNDLE_ID="com.tencent.xinWeChat.dual"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -68,7 +68,8 @@ ok "URL Scheme 已更新"
 if command -v python3 &>/dev/null; then
     if python3 -c "from PIL import Image; import numpy" 2>/dev/null; then
         info "正在生成金属质感图标 ..."
-        python3 "$SCRIPT_DIR/generate_icon.py" "$TARGET_APP/Contents/Resources/AppIcon.icns"
+        sudo chmod 666 "$TARGET_APP/Contents/Resources/AppIcon.icns"
+        sudo python3 "$SCRIPT_DIR/generate_icon.py" "$TARGET_APP/Contents/Resources/AppIcon.icns"
         if [ $? -eq 0 ]; then
             ok "金属图标已应用"
         else
