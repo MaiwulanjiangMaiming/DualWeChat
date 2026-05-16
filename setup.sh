@@ -7,50 +7,71 @@ TARGET_APP="/Applications/DualWeChat.app"
 BUNDLE_ID="com.tencent.xinWeChat.dual"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
 
-info()  { echo -e "${CYAN}[INFO]${NC} $1"; }
-ok()    { echo -e "${GREEN}[OK]${NC} $1"; }
-warn()  { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
+print_header() {
+    printf "\n"
+    printf "  ${BOLD}⚡ DualWeChat${RESET}  —  macOS 微信双开\n"
+    printf "  ${DIM}github.com/MaiwulanjiangMaiming/DualWeChat${RESET}\n"
+    printf "\n"
+}
 
-echo ""
-echo -e "${CYAN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║         DualWeChat Installer             ║${NC}"
-echo -e "${CYAN}║     macOS 微信双开 · 一键安装            ║${NC}"
-echo -e "${CYAN}╚══════════════════════════════════════════╝${NC}"
-echo ""
+print_step() {
+    printf "  %s  %s\n" "$1" "$2"
+}
+
+print_done() {
+    printf "  ${DIM}✓${RESET} %s\n" "$1"
+}
+
+print_success() {
+    printf "\n  ✅  %s\n" "$1"
+}
+
+print_warn() {
+    printf "  ⚠️  %s\n" "$1"
+}
+
+print_error() {
+    printf "  ❌  %s\n" "$1"
+    exit 1
+}
+
+# ─────────────────────────────────────────
+
+print_header
 
 if [ ! -d "$SOURCE_APP" ]; then
-    error "未检测到微信，请先从 App Store 或官网安装微信。"
+    print_error "未检测到微信，请先从 App Store 或官网安装。"
 fi
 
 if [ -d "$TARGET_APP" ]; then
-    warn "检测到已存在的 $TARGET_APP"
-    read -p "是否覆盖？[y/N] " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        info "已取消安装。"
-        exit 0
-    fi
+    print_warn "检测到已存在的 DualWeChat.app"
+    read -p "  是否覆盖？ [y/N] " -n 1 -r
+        printf "\n"
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            printf "  已取消。\n"
+            exit 0
+        fi
     sudo rm -rf "$TARGET_APP"
 fi
 
-info "正在复制 WeChat.app → DualWeChat.app ..."
+# Step 1
+print_step "1/5" "复制 WeChat.app → DualWeChat.app"
 sudo cp -R "$SOURCE_APP" "$TARGET_APP"
-ok "复制完成"
+print_done "复制完成"
 
-info "正在修改 Bundle Identifier ..."
+# Step 2
+print_step "2/5" "修改 Bundle Identifier"
 sudo /usr/libexec/PlistBuddy \
     -c "Set :CFBundleIdentifier $BUNDLE_ID" \
     "$TARGET_APP/Contents/Info.plist"
-ok "Bundle ID → $BUNDLE_ID"
+print_done "Bundle ID → $BUNDLE_ID"
 
-info "正在修改应用名称 ..."
+# Step 3
+print_step "3/5" "修改应用名称"
 sudo /usr/libexec/PlistBuddy \
     -c "Set :CFBundleDisplayName $APP_NAME" \
     "$TARGET_APP/Contents/Info.plist"
@@ -66,29 +87,27 @@ for strings_file in "$TARGET_APP"/Contents/Resources/*.lproj/InfoPlist.strings; 
             -c "Set :CFBundleName $APP_NAME" "$strings_file" 2>/dev/null || true
     fi
 done
-ok "应用名称 → $APP_NAME"
+print_done "名称 → DualWeChat"
 
-info "正在修改 URL Scheme Bundle ID ..."
-sudo /usr/libexec/PlistBuddy \
-    -c "Set :CFBundleURLTypes:0:CFBundleURLName $BUNDLE_ID" \
-    "$TARGET_APP/Contents/Info.plist" 2>/dev/null || true
-ok "URL Scheme 已更新"
+# Step 4
+print_step "4/5" "生成图标"
 
 ICON_SCHEME="metal"
 
 if command -v python3 &>/dev/null; then
     if python3 -c "from PIL import Image; import numpy" 2>/dev/null; then
-        echo -e "${CYAN}[选择图标配色 / Choose icon color scheme]${NC}"
         echo ""
-        echo "  1) Metal   / 金属     — 金属黑质感"
-        echo "  2) Aurora  / 极光     — 冷蓝极光感"
-        echo "  3) Neon    / 霓虹     — 紫粉霓虹感"
-        echo "  4) Lava    / 熔岩     — 橙金烈焰感"
-        echo "  5) Matrix  / 矩阵     — 黑客终端感"
-        echo "  0) 跳过 / Skip"
+        echo "  选择图标配色："
         echo ""
-        read -p "请选择 [1-5, 默认 1]: " -r SCHEME_CHOICE
-        echo
+        echo "    1) Metal   — 金属黑"
+        echo "    2) Aurora  — 冷蓝极光"
+        echo "    3) Neon    — 紫粉霓虹"
+        echo "    4) Lava    — 橙金熔岩"
+        echo "    5) Matrix  — 黑客矩阵"
+        echo "    0) 跳过"
+        echo ""
+        read -p "  请输入编号 [0-5，默认 1]: " -r SCHEME_CHOICE
+        printf "\n"
 
         case "$SCHEME_CHOICE" in
             2) ICON_SCHEME="aurora" ;;
@@ -100,40 +119,37 @@ if command -v python3 &>/dev/null; then
         esac
 
         if [ "$ICON_SCHEME" != "skip" ]; then
-            info "正在生成 ${ICON_SCHEME} 图标 ..."
             sudo chmod 666 "$TARGET_APP/Contents/Resources/AppIcon.icns"
-            sudo python3 "$SCRIPT_DIR/generate_icon.py" "$TARGET_APP/Contents/Resources/AppIcon.icns" "$ICON_SCHEME"
-            if [ $? -eq 0 ]; then
-                ok "${ICON_SCHEME} 图标已应用"
-            else
-                warn "图标生成失败，将使用原版图标"
-            fi
+            sudo python3 "$SCRIPT_DIR/generate_icon.py" "$TARGET_APP/Contents/Resources/AppIcon.icns" "$ICON_SCHEME" >/dev/null 2>&1
+            print_done "图标 → $ICON_SCHEME"
         else
-            info "跳过自定义图标"
+            print_done "使用原版图标"
         fi
     else
-        warn "未检测到 Pillow / numpy，跳过自定义图标"
-        warn "可通过 pip3 install Pillow numpy 安装后重新运行"
+        print_warn "未安装 Pillow / numpy，跳过自定义图标"
+        print_done "使用原版图标"
     fi
 else
-    warn "未检测到 python3，跳过自定义图标"
+    print_warn "未安装 python3，跳过自定义图标"
+    print_done "使用原版图标"
 fi
 
-info "正在重新签名应用 ..."
+# Step 5
+print_step "5/5" "重新签名"
 sudo codesign --force --deep --sign - "$TARGET_APP" 2>/dev/null
-ok "签名完成"
+print_done "签名完成"
 
-info "正在刷新 Dock 缓存 ..."
+# Refresh
 sudo touch "$TARGET_APP"
 sudo killall Dock 2>/dev/null || true
 
-echo ""
-echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║          ✅ 安装完成！                    ║${NC}"
-echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
-echo ""
-echo -e "  ${CYAN}WeChat${NC}      → 登录第一个账号"
-echo -e "  ${CYAN}DualWeChat${NC}   → 登录第二个账号"
-echo ""
-echo -e "  两个应用互相独立，可同时运行。"
-echo ""
+# ─────────────────────────────────────────
+
+printf "\n"
+printf "  ${DIM}─────────────────────────────────────${RESET}\n"
+printf "\n"
+print_success "安装完成"
+printf "\n"
+printf "  WeChat      → 账号 1\n"
+printf "  DualWeChat  → 账号 2\n"
+printf "\n"
