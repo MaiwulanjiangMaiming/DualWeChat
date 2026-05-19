@@ -107,7 +107,11 @@ You can also directly replace with any `.icns` file.
 
 Notifications are independent between the two apps. Because the icons are different, you can tell them apart at a glance. Notification settings can be configured separately in System Settings.
 
-> **After WeChat updates**: Since updates overwrite the original `WeChat.app`, it is recommended to re-run `./setup.sh` after updating to generate a fresh `DualWeChat.app`.
+> **After WeChat updates**: DualWeChat won't auto-update. Run the following command to check and update:
+> ```bash
+> ./update.sh
+> ```
+> The script compares version numbers between the two apps and calls `setup.sh` when a new version is detected.
 
 ---
 

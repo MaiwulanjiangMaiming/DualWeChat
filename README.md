@@ -107,7 +107,11 @@ sudo codesign --force --deep --sign - /Applications/DualWeChat.app
 
 两个应用的通知是独立的，图标不同，一眼就能区分。通知设置可在系统设置中分别配置。
 
-> **微信更新后**：由于更新会可能覆盖原版 `WeChat.app`，建议更新后重新运行 `./setup.sh` 生成新的 `DualWeChat.app`。
+> **微信更新后**：DualWeChat 不会自动更新。运行以下命令检查并更新：
+> ```bash
+> ./update.sh
+> ```
+> 脚本会对比两个微信的版本号，发现新版本时自动调用 `setup.sh` 重新生成。
 
 ---
 
