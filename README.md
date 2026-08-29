@@ -91,12 +91,18 @@ sudo touch /Applications/DualWeChat.app && sudo killall Dock
 ```bash
 pip3 install Pillow numpy
 python3 generate_icon.py /Applications/DualWeChat.app/Contents/Resources/AppIcon.icns aurora
-sudo codesign --force --deep --sign - /Applications/DualWeChat.app
 ```
 
 可选配色：`metal`, `aurora`, `neon`, `lava`, `matrix`
 
 也可以直接替换任意 `.icns` 图标文件。
+
+> **微信 4.1+ / macOS 26 注意**：系统优先使用 `Assets.car` 资产库中的原版图标（由 `CFBundleIconName` 声明），直接替换 `AppIcon.icns` 不会生效。需删除该键并重签名（`setup.sh` 已自动处理）：
+> ```bash
+> sudo /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" /Applications/DualWeChat.app/Contents/Info.plist
+> sudo codesign --force --deep --sign - /Applications/DualWeChat.app
+> sudo killall Dock
+> ```
 
 ---
 
@@ -107,11 +113,11 @@ sudo codesign --force --deep --sign - /Applications/DualWeChat.app
 
 两个应用的通知是独立的，图标不同，一眼就能区分。通知设置可在系统设置中分别配置。
 
-> **微信更新后**：DualWeChat 不会自动更新。运行以下命令检查并更新：
+> **微信更新后**：DualWeChat 无法在应用内升级（重新签名后无法通过微信更新程序的签名校验，安装时已自动禁用升级弹窗）。请先正常更新原版微信，再运行：
 > ```bash
 > ./update.sh
 > ```
-> 脚本会对比两个微信的版本号，发现新版本时自动调用 `setup.sh` 重新生成。
+> 脚本会对比两个微信的版本号，发现新版本时自动调用 `setup.sh` 重新生成（自动退出运行中的 DualWeChat，完成后自动重启）；版本一致时也可选择重新安装 / 更换图标。
 
 ---
 

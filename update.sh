@@ -9,6 +9,14 @@ BOLD='\033[1m'
 DIM='\033[2m'
 RESET='\033[0m'
 
+# 单键确认（y/N）；读取后清空输入缓冲里的残留回车，
+# 避免 exec setup.sh 后其首个交互式 read 误读为空输入
+confirm() {
+    read -p "  $1" -n 1 -r
+    printf "\n"
+    IFS= read -r -t 0.1 _ || true
+}
+
 if [ ! -d "$SOURCE_APP" ]; then
     printf "  ❌  未检测到微信\n"
     exit 1
@@ -34,12 +42,17 @@ printf "\n"
 if [ "$SRC_VER" = "$DST_VER" ]; then
     printf "  ✅  版本一致，无需更新。\n"
     printf "\n"
+    confirm "是否重新安装 / 更换图标？ [y/N] "
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        exec "$SCRIPT_DIR/setup.sh"
+    fi
+    printf "  已跳过。\n"
+    printf "\n"
     exit 0
 fi
 
 printf "  ⚠️  检测到新版本，是否更新？\n"
-read -p "  [y/N] " -n 1 -r
-printf "\n"
+confirm "[y/N] "
 
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     printf "  已跳过。\n"

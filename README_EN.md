@@ -91,12 +91,18 @@ The install script includes 5 color themes. You can also specify one manually:
 ```bash
 pip3 install Pillow numpy
 python3 generate_icon.py /Applications/DualWeChat.app/Contents/Resources/AppIcon.icns aurora
-sudo codesign --force --deep --sign - /Applications/DualWeChat.app
 ```
 
 Available schemes: `metal`, `aurora`, `neon`, `lava`, `matrix`
 
 You can also directly replace with any `.icns` file.
+
+> **WeChat 4.1+ / macOS 26 note**: macOS prefers the original icon from the `Assets.car` asset catalog (declared via `CFBundleIconName`), so replacing `AppIcon.icns` alone has no effect. Delete that key and re-sign (`setup.sh` handles this automatically):
+> ```bash
+> sudo /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" /Applications/DualWeChat.app/Contents/Info.plist
+> sudo codesign --force --deep --sign - /Applications/DualWeChat.app
+> sudo killall Dock
+> ```
 
 ---
 
@@ -107,11 +113,11 @@ You can also directly replace with any `.icns` file.
 
 Notifications are independent between the two apps. Because the icons are different, you can tell them apart at a glance. Notification settings can be configured separately in System Settings.
 
-> **After WeChat updates**: DualWeChat won't auto-update. Run the following command to check and update:
+> **After WeChat updates**: DualWeChat cannot update in-app (the re-signed copy fails WeChat's updater signature validation; the update popup is disabled at install time). Update the original WeChat first, then run:
 > ```bash
 > ./update.sh
 > ```
-> The script compares version numbers between the two apps and calls `setup.sh` when a new version is detected.
+> The script compares version numbers between the two apps and calls `setup.sh` when a new version is detected (it quits the running DualWeChat automatically and relaunches it afterwards); when versions match, you can also choose to reinstall / change the icon.
 
 ---
 
