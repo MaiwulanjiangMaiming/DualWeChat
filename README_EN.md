@@ -51,7 +51,7 @@ It copies `WeChat.app`, changes the copy’s bundle identifier to `com.tencent.x
 | --- | --- |
 | **Truly independent** | Not just another window: its own bundle ID, signature and sandbox container |
 | **One-command setup** | Copy, rename, re-icon, re-sign and refresh the Dock automatically |
-| **Five icon themes** | Metal / Aurora / Neon / Lava / Matrix — choose at install time or switch later |
+| **Ten icon themes** | Metal / Aurora / Neon / Lava / Matrix / Sakura / Ocean / Sunset / Grape / Crimson — choose at install time or switch later |
 | **Update aware** | After WeChat updates, run `./update.sh` to detect the new version and rebuild |
 | **Leaves the original alone** | Read-only copy; the official WeChat keeps its signature and updates normally |
 | **100% local** | No network calls, no telemetry; scripts and icon generation are auditable |
@@ -116,7 +116,7 @@ This is also why logins, chat history, notifications and icons stay separate: ma
 
 ## Themes
 
-![Five DualWeChat icon themes](assets/themes-en.png)
+![Ten DualWeChat icon themes](assets/themes-en.png)
 
 Pick one during install, or regenerate anytime:
 
@@ -131,6 +131,11 @@ Pick one during install, or regenerate anytime:
 | `neon` | Purple-pink neon | Vivid, stands out on a light Dock |
 | `lava` | Orange-gold lava | Warm and easy on the eyes at night |
 | `matrix` | Terminal green | A hacker-terminal vibe |
+| `sakura` | Soft pink | Light wallpapers and a softer Dock |
+| `ocean` | Teal and sky blue | A calm, cool desktop |
+| `sunset` | Coral and peach | Warm and energetic |
+| `grape` | Violet and lilac | Purple without the neon glare |
+| `crimson` | Deep red | Maximum contrast and visibility |
 
 Generate an icon manually:
 

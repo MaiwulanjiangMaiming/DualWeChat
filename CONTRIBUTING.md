@@ -24,7 +24,7 @@ make check
 | --- | --- |
 | `setup.sh` | 安装：复制、改 Bundle ID、换图标、重签名、刷新缓存 |
 | `update.sh` | 版本检查与更新，调用 `setup.sh` 重建 |
-| `generate_icon.py` | 从官方微信图标生成 5 套主题图标（.icns / .png） |
+| `generate_icon.py` | 从官方微信图标生成 10 套主题图标（.icns / .png） |
 | `tools/build_assets.py` | 生成 README 用的 hero、主题墙和社交预览图 |
 | `assets/` | 已生成的图片，README 直接引用 |
 
