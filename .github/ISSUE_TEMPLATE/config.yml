@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 先阅读 README 的常见问题
+    url: https://github.com/MaiwulanjiangMaiming/DualWeChat/blob/main/README.md#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98
+    about: 图标不更新、微信升级、卸载与数据隔离等问题，这里大多已有答案。
+  - name: 查看故障排查
+    url: https://github.com/MaiwulanjiangMaiming/DualWeChat/blob/main/README.md#%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5
+    about: 签名失败、无法打开、权限错误等常见现象的处理方式。
