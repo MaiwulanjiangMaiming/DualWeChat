@@ -54,14 +54,16 @@ python3 tools/build_assets.py
 
 ## 提交信息
 
-建议使用 `type: 摘要` 的格式：
+所有 commit message 统一使用英文，建议采用 `type: summary` 格式：
 
 ```text
-feat: 支持 --keep-icon
-fix: 修复 macOS 26 图标缓存
-docs: 补充 Intel 支持说明
-style: 调整主题墙排版
+feat: add --keep-icon
+fix: refresh icon cache on macOS 26
+docs: clarify Intel support
+style: refine theme gallery layout
 ```
+
+这样便于国际协作者检索，也让 changelog 更容易生成。
 
 ## Pull Request
 
