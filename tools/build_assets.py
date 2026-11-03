@@ -38,6 +38,11 @@ THEME_LABELS = {
     "neon": ("Neon", "紫粉霓虹"),
     "lava": ("Lava", "橙金熔岩"),
     "matrix": ("Matrix", "黑客矩阵"),
+    "sakura": ("Sakura", "樱花粉"),
+    "ocean": ("Ocean", "深海青"),
+    "sunset": ("Sunset", "落日橘"),
+    "grape": ("Grape", "葡萄紫"),
+    "crimson": ("Crimson", "绯红"),
 }
 
 
@@ -233,7 +238,7 @@ def build_hero(source, lang="cn"):
         draw = ImageDraw.Draw(canvas)
         text(draw, (98, 410), "复制一份微信，改写 Bundle ID，重新签名。", chinese(24, "W3"), MUTED)
         text(draw, (98, 449), "消息、通知、文件完全独立，与原版互不干扰。", chinese(24, "W3"), MUTED)
-        chips = ["一键安装", "5 套主题", "自动跟随更新"]
+        chips = ["一键安装", f"{len(SCHEME_LIST)} 套主题", "自动跟随更新"]
         chip_font = chinese(19, "W3")
         x = 98
         for i, chip in enumerate(chips):
@@ -256,7 +261,7 @@ def build_hero(source, lang="cn"):
         draw = ImageDraw.Draw(canvas)
         text(draw, (98, 420), "Duplicate the app, rewrite its bundle ID, re-sign it.", latin(23, "Regular"), MUTED)
         text(draw, (98, 458), "Messages, notifications and files stay fully separate.", latin(23, "Regular"), MUTED)
-        chips = ["One-click setup", "5 themes", "Update-aware"]
+        chips = ["One-click setup", f"{len(SCHEME_LIST)} themes", "Update-aware"]
         chip_font = latin(16, "Medium")
         x = 98
         for i, chip in enumerate(chips):
@@ -297,59 +302,66 @@ def build_hero(source, lang="cn"):
 
 
 def build_themes(source, lang="cn"):
-    width, height = S(1600), S(700)
+    width, height = S(1600), S(1110)
     canvas = background(
         width, height,
         glows=[
-            (0.18, 0.0, 0.42, (0, 200, 255), 0.16),
-            (0.82, 1.0, 0.45, (130, 110, 255), 0.18),
+            (0.16, 0.0, 0.40, (0, 200, 255), 0.16),
+            (0.84, 0.95, 0.45, (130, 110, 255), 0.18),
         ],
     ).convert("RGBA")
     draw = ImageDraw.Draw(canvas)
 
     if lang == "cn":
-        text(draw, (66, 62), "五套主题，换一种心情", chinese(42, "W6"), INK)
-        text(draw, (68, 128), "安装时选择，之后随时运行  ./setup.sh  重新生成", chinese(19, "W3"), MUTED)
-        footer = "python3 generate_icon.py <target.icns> <scheme>"
+        text(draw, (66, 58), "十套主题，换一种心情", chinese(42, "W6"), INK)
+        text(draw, (68, 122), "安装时选择，之后随时运行  ./setup.sh  重新生成", chinese(19, "W3"), MUTED)
     else:
-        text(draw, (66, 62), "Five themes. Pick your vibe.", latin(42, "Bold"), INK)
-        text(draw, (68, 128), "Choose during install, or regenerate anytime with  ./setup.sh", latin(18, "Regular"), MUTED)
-        footer = "python3 generate_icon.py <target.icns> <scheme>"
+        text(draw, (66, 58), "Ten themes. Pick your vibe.", latin(42, "Bold"), INK)
+        text(draw, (68, 122), "Choose during install, or regenerate anytime with  ./setup.sh", latin(18, "Regular"), MUTED)
 
-    card_w, card_h, gap = 276, 430, 22
-    total = card_w * 5 + gap * 4
+    footer = "python3 generate_icon.py <target.icns> <scheme>"
+
+    card_w, card_h, gap_x, gap_y = 276, 400, 22, 24
+    columns = 5
+    total = card_w * columns + gap_x * (columns - 1)
     start_x = (1600 - total) / 2
-    top = 204
+    top = 190
+
     for index, key in enumerate(SCHEME_LIST):
         scheme = SCHEMES[key]
-        x = start_x + index * (card_w + gap)
-        card(canvas, (x, top, x + card_w, top + card_h), radius=34,
+        row, col = divmod(index, columns)
+        x = start_x + col * (card_w + gap_x)
+        y = top + row * (card_h + gap_y)
+
+        card(canvas, (x, y, x + card_w, y + card_h), radius=34,
              fill=(255, 255, 255, 5), border=(255, 255, 255, 18), shadow=0.4)
         draw = ImageDraw.Draw(canvas)
-        text(draw, (x + 26, top + 22), f"0{index + 1}", mono(15), (86, 98, 122))
+        text(draw, (x + 24, y + 18), f"{index + 1:02d}", mono(15), (86, 98, 122))
+
         icon = scheme_icon(source, key, 1024)
-        paste_icon(canvas, icon, (x + card_w / 2, top + 156), 168,
+        paste_icon(canvas, icon, (x + card_w / 2, y + 150), 164,
                    glow=(tuple(scheme["primary"]), 0.22, 34), shadow=0.4)
         draw = ImageDraw.Draw(canvas)
+
         en, cn = THEME_LABELS[key]
         if lang == "cn":
-            text(draw, (x + card_w / 2, top + 270), cn, chinese(23, "W6"), INK, anchor="mt")
-            text(draw, (x + card_w / 2, top + 306), en.upper(), mono(13), (126, 140, 166), anchor="mt")
+            text(draw, (x + card_w / 2, y + 258), cn, chinese(23, "W6"), INK, anchor="mt")
+            text(draw, (x + card_w / 2, y + 296), en.upper(), mono(13), (126, 140, 166), anchor="mt")
         else:
-            text(draw, (x + card_w / 2, top + 270), en, latin(25, "Bold"), INK, anchor="mt")
-            text(draw, (x + card_w / 2, top + 306), f"0{index + 1} / {len(SCHEME_LIST)}", mono(12),
+            text(draw, (x + card_w / 2, y + 258), en, latin(25, "Bold"), INK, anchor="mt")
+            text(draw, (x + card_w / 2, y + 296), f"{index + 1:02d} / {len(SCHEME_LIST)}", mono(12),
                  (126, 140, 166), anchor="mt")
 
         dots = [scheme["primary"], scheme["accent"], scheme["mid"]]
-        dot_y = top + 356
+        dot_y = y + 344
         start = x + card_w / 2 - (len(dots) * 10 + (len(dots) - 1) * 8) / 2 + 5
         for i, color in enumerate(dots):
             cx = start + i * 18
             draw.ellipse([S(cx - 5), S(dot_y - 5), S(cx + 5), S(dot_y + 5)],
                          fill=color, outline=(255, 255, 255, 30), width=max(1, S(0.7)))
-        text(draw, (x + card_w / 2, top + 388), key, mono(12), (84, 96, 120), anchor="mt")
+        text(draw, (x + card_w / 2, y + 376), key, mono(12), (84, 96, 120), anchor="mt")
 
-    text(draw, (66, 662), footer, mono(14), (92, 104, 128))
+    text(draw, (66, 1062), footer, mono(14), (92, 104, 128))
     return canvas.convert("RGB")
 
 
@@ -376,7 +388,7 @@ def build_social(source):
                            (255, 255, 255), (176, 202, 246))
     draw = ImageDraw.Draw(canvas)
     text(draw, (454, 318), "Two WeChats. One Mac.", latin(32, "Bold"), (214, 226, 246))
-    text(draw, (454, 372), "One-click setup  ·  5 themes  ·  Fully local", latin(18, "Regular"), MUTED)
+    text(draw, (454, 372), f"One-click setup  ·  {len(SCHEME_LIST)} themes  ·  Fully local", latin(18, "Regular"), MUTED)
     text(draw, (454, 496), "github.com/MaiwulanjiangMaiming/DualWeChat",
          mono(16), (120, 136, 164))
 

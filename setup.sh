@@ -37,9 +37,15 @@ if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
     DOT_NEON="${ESC}[38;2;198;60;255m"
     DOT_LAVA="${ESC}[38;2;255;140;40m"
     DOT_MATRIX="${ESC}[38;2;40;255;150m"
+    DOT_SAKURA="${ESC}[38;2;255;150;200m"
+    DOT_OCEAN="${ESC}[38;2;40;220;210m"
+    DOT_SUNSET="${ESC}[38;2;255;120;100m"
+    DOT_GRAPE="${ESC}[38;2;190;140;255m"
+    DOT_CRIMSON="${ESC}[38;2;255;90;100m"
 else
     BOLD="" DIM="" RESET="" CYAN="" GREEN="" YELLOW="" RED=""
     DOT_METAL="" DOT_AURORA="" DOT_NEON="" DOT_LAVA="" DOT_MATRIX=""
+    DOT_SAKURA="" DOT_OCEAN="" DOT_SUNSET="" DOT_GRAPE="" DOT_CRIMSON=""
 fi
 
 TMP_DIR=""
@@ -109,8 +115,10 @@ DualWeChat — macOS 微信双开
   -h, --help            显示本帮助
 
 主题:
-  metal (金属黑)  aurora (冷蓝极光)  neon (紫粉霓虹)
-  lava (橙金熔岩)  matrix (黑客矩阵)
+  metal (金属黑)     aurora (冷蓝极光)   neon (紫粉霓虹)
+  lava (橙金熔岩)    matrix (黑客矩阵)   sakura (樱花粉)
+  ocean (深海青)     sunset (落日橘)     grape (葡萄紫)
+  crimson (绯红)
 
 示例:
   ./setup.sh --scheme aurora
@@ -131,7 +139,7 @@ plist_read() {
 
 is_scheme() {
     case "$1" in
-        metal|aurora|neon|lava|matrix) return 0 ;;
+        metal|aurora|neon|lava|matrix|sakura|ocean|sunset|grape|crimson) return 0 ;;
         *) return 1 ;;
     esac
 }
@@ -163,15 +171,15 @@ choose_scheme() {
     fi
 
     printf "\n    %s选择图标配色%s\n\n" "$BOLD" "$RESET"
-    printf "      1) %s●%s  Metal    金属黑\n" "$DOT_METAL" "$RESET"
-    printf "      2) %s●%s  Aurora   冷蓝极光  %s（推荐）%s\n" "$DOT_AURORA" "$RESET" "$DIM" "$RESET"
-    printf "      3) %s●%s  Neon     紫粉霓虹\n" "$DOT_NEON" "$RESET"
-    printf "      4) %s●%s  Lava     橙金熔岩\n" "$DOT_LAVA" "$RESET"
-    printf "      5) %s●%s  Matrix   黑客矩阵\n" "$DOT_MATRIX" "$RESET"
-    printf "      0)    保留原版图标\n\n"
+    printf "      1) %s●%s  Metal     金属黑        %2d) %s●%s  Sakura    樱花粉\n" "$DOT_METAL" "$RESET" 6 "$DOT_SAKURA" "$RESET"
+    printf "      2) %s●%s  Aurora    冷蓝极光      %2d) %s●%s  Ocean     深海青\n" "$DOT_AURORA" "$RESET" 7 "$DOT_OCEAN" "$RESET"
+    printf "      3) %s●%s  Neon      紫粉霓虹      %2d) %s●%s  Sunset    落日橘\n" "$DOT_NEON" "$RESET" 8 "$DOT_SUNSET" "$RESET"
+    printf "      4) %s●%s  Lava      橙金熔岩      %2d) %s●%s  Grape     葡萄紫\n" "$DOT_LAVA" "$RESET" 9 "$DOT_GRAPE" "$RESET"
+    printf "      5) %s●%s  Matrix    黑客矩阵      %2d) %s●%s  Crimson   绯红\n" "$DOT_MATRIX" "$RESET" 10 "$DOT_CRIMSON" "$RESET"
+    printf "      0)          保留原版图标\n\n"
 
     local choice=""
-    read -r -p "    输入编号 [0-5，回车默认 1]: " choice || true
+    read -r -p "    输入编号 [0-10，回车默认 1]: " choice || true
     printf "\n"
 
     case "$choice" in
@@ -180,6 +188,11 @@ choose_scheme() {
         3) SCHEME="neon" ;;
         4) SCHEME="lava" ;;
         5) SCHEME="matrix" ;;
+        6) SCHEME="sakura" ;;
+        7) SCHEME="ocean" ;;
+        8) SCHEME="sunset" ;;
+        9) SCHEME="grape" ;;
+        10) SCHEME="crimson" ;;
         *) SCHEME="metal" ;;
     esac
 }
@@ -268,7 +281,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -n "$SCHEME" ] && ! is_scheme "$SCHEME"; then
-    fail "未知主题：${SCHEME}（可选：metal, aurora, neon, lava, matrix）"
+    fail "未知主题：${SCHEME}（可选：metal, aurora, neon, lava, matrix, sakura, ocean, sunset, grape, crimson）"
 fi
 
 # 显式指定主题时，以主题为准

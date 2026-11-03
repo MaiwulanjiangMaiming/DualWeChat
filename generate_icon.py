@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """DualWeChat icon generator.
 
-Recolors the official WeChat icon into one of five themes while keeping the
+Recolors the official WeChat icon into one of ten themes while keeping the
 original bubble silhouette. The result can be written as an .icns bundle icon
 or as a plain .png preview.
 
@@ -65,6 +65,51 @@ SCHEMES = {
         "glow_strength": (0.24, 0.18),
         "primary": (40, 255, 150),
         "accent": (180, 255, 220),
+    },
+    "sakura": {
+        "name": "Sakura / 樱花",
+        "base": (24, 10, 20),
+        "mid": (48, 16, 36),
+        "glow": ((255, 130, 180), (255, 210, 220)),
+        "glow_strength": (0.18, 0.10),
+        "primary": (255, 120, 180),
+        "accent": (255, 200, 225),
+    },
+    "ocean": {
+        "name": "Ocean / 深海",
+        "base": (2, 16, 24),
+        "mid": (4, 40, 50),
+        "glow": ((0, 210, 190), (0, 120, 200)),
+        "glow_strength": (0.18, 0.18),
+        "primary": (30, 220, 200),
+        "accent": (110, 190, 255),
+    },
+    "sunset": {
+        "name": "Sunset / 落日",
+        "base": (24, 8, 16),
+        "mid": (52, 16, 24),
+        "glow": ((255, 95, 90), (255, 180, 70)),
+        "glow_strength": (0.20, 0.14),
+        "primary": (255, 110, 95),
+        "accent": (255, 195, 120),
+    },
+    "grape": {
+        "name": "Grape / 葡萄",
+        "base": (16, 8, 28),
+        "mid": (36, 14, 56),
+        "glow": ((160, 90, 255), (255, 120, 220)),
+        "glow_strength": (0.20, 0.12),
+        "primary": (175, 115, 255),
+        "accent": (225, 180, 255),
+    },
+    "crimson": {
+        "name": "Crimson / 绯红",
+        "base": (22, 4, 8),
+        "mid": (48, 8, 14),
+        "glow": ((255, 50, 70), (255, 120, 90)),
+        "glow_strength": (0.18, 0.10),
+        "primary": (255, 70, 85),
+        "accent": (255, 150, 140),
     },
 }
 
